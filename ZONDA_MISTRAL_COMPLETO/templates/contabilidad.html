@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="header"><div><p class="eyebrow">CONTROL FINANCIERO</p><h1>Dashboard de contabilidad</h1><p>Resumen de gastos, importes recibidos y rendiciones registradas.</p></div><a class="button secondary" href="{{url_for('dashboard')}}">Volver a rendiciones</a></div>
+<section class="kpi-grid">
+ <article class="kpi-card"><span>Total de gastos</span><strong>S/ {{'%.2f'|format(total_gastos)}}</strong><small>Comprobantes procesados</small></article>
+ <article class="kpi-card"><span>Importe recibido</span><strong>S/ {{'%.2f'|format(total_recibido)}}</strong><small>Según datos ingresados</small></article>
+ <article class="kpi-card"><span>Saldo referencial</span><strong class="{% if saldo < 0 %}negative{% else %}positive{% endif %}">S/ {{'%.2f'|format(saldo)}}</strong><small>Recibido menos gastos</small></article>
+ <article class="kpi-card"><span>Completadas</span><strong>{{total_completadas}}</strong><small>{{total_rendiciones}} rendiciones en total</small></article>
+</section>
+<div class="accounting-grid">
+ <section class="card"><p class="eyebrow">DISTRIBUCIÓN</p><h2>Gastos por categoría</h2>
+ {% for item in categorias %}<div class="bar-row"><div class="bar-label"><span>{{item.nombre}}</span><strong>S/ {{'%.2f'|format(item.total)}}</strong></div><div class="bar-track"><div class="bar-fill" style="width:{{'%.1f'|format(item.porcentaje)}}%"></div></div></div>{% endfor %}
+ <p class="small">La clasificación depende del texto del detalle disponible en cada comprobante. Verifica los importes clasificados como «Otros».</p></section>
+ <section class="card"><p class="eyebrow">TENDENCIA</p><h2>Resumen mensual</h2><div class="table-wrap"><table><thead><tr><th>Mes</th><th>Gastos</th><th>Recibido</th><th>Rend.</th></tr></thead><tbody>
+ {% for m in meses %}<tr><td>{{m.mes}}</td><td>S/ {{'%.2f'|format(m.gastos)}}</td><td>S/ {{'%.2f'|format(m.recibido)}}</td><td>{{m.cantidad}}</td></tr>{% else %}<tr><td colspan="4" class="empty">Aún no hay movimientos.</td></tr>{% endfor %}
+ </tbody></table></div></section>
+</div>
+<section class="card"><p class="eyebrow">SEGUIMIENTO</p><h2>Rendiciones recientes</h2><div class="table-wrap"><table><thead><tr><th>Rendición</th><th>Usuario</th><th>Estado</th><th>Gastos</th><th>Recibido</th><th>Saldo</th><th></th></tr></thead><tbody>
+ {% for m in movimientos %}<tr><td><strong>#{{m.id}} · {{m.title}}</strong><div class="small">{{m.mes}}</div></td><td>{{m.usuario}}</td><td><span class="badge">{{m.estado}}</span></td><td>S/ {{'%.2f'|format(m.gastos)}}</td><td>S/ {{'%.2f'|format(m.recibido)}}</td><td class="{% if m.saldo < 0 %}negative{% else %}positive{% endif %}">S/ {{'%.2f'|format(m.saldo)}}</td><td><a href="{{url_for('rendicion',rid=m.id)}}">Abrir →</a></td></tr>{% else %}<tr><td colspan="7" class="empty">No hay rendiciones registradas.</td></tr>{% endfor %}
+ </tbody></table></div></section>
+<p class="note">Panel de control interno. Los saldos son referenciales y no sustituyen la conciliación contable ni la revisión de comprobantes originales.</p>
+{% endblock %}
